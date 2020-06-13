@@ -39,10 +39,7 @@ function officiallangFormatter(cell, row) {
 }
 
 
-//  this let me click on row to edit
-const cellEditProp = {
-  mode: 'click'
-};
+
 
 //  main app comp
 class App extends Component {
@@ -270,11 +267,7 @@ class App extends Component {
   }
 
   //
-  handleInsertedRow = (formdata) => {
-    console.log(formdata)
-    console.log("handleInsertedRow ... xxx ")
-    console.log(formdata) 
-    console.log(this.state.countryinfo)
+  handleInsertedRow = (formdata) => { 
 
     formdata.countrycode = this.state.countryinfo.code
  
@@ -286,8 +279,8 @@ class App extends Component {
         body: JSON.stringify(formdata)
       }).then(res =>res.json())
         .then(data => {   
-          console.log(data) 
-          console.log('forceUpdate')
+          // console.log(data) 
+          // console.log('forceUpdate')
           this.get_city_by_country_id({"code" : data.params.countrycode , "name":this.state.selectedcountry})
           this.forceUpdate()
         }) 
@@ -304,8 +297,8 @@ class App extends Component {
       body: JSON.stringify({"city_id": rowKeys[0] })
     }).then(res =>res.json())
       .then(data => {   
-        console.log(data) 
-        console.log('forceUpdate')
+        // console.log(data) 
+        // console.log('forceUpdate')
         this.get_city_by_country_id(this.state.countryinfo)
         this.forceUpdate()
       })
@@ -330,8 +323,62 @@ class App extends Component {
     );
   }
 
+  onAfterSaveCell = (row, cellName, cellValue) => { 
+
+
+    let rowStr = '';
+    for (const prop in row) {
+      rowStr += prop + ': ' + row[prop] + '\n';
+      if(prop == cellName && row[prop] != cellValue){
+         
+        row[prop] = cellValue
+        
+        var params = {} //{"city_id" : row["id"]  , "updateon" : cellName , "updatevalue":cellValue } 
+        params.city_id = row["id"] 
+        params.updateon = cellName 
+        params.updatevalue = cellValue 
+
+        //  fetch data from API
+        fetch('/city/update' , {
+          method: "POST",
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify(params)
+        }).then(res =>res.json())
+          .then(data => {    
+            this.get_city_by_country_id({"code" : row["countrycode"] , "name":this.state.selectedcountry})
+            this.forceUpdate()
+          })  
+
+      }
+    }
+
+  }
+
+  //  validate edited vals
+  onBeforeSaveCell = (row, cellName, cellValue) => {  
+
+    if(cellValue.trim() == '' ){
+      alert("Please enter value!") ; 
+      return false;
+    }else if(cellName == "population" && parseInt(cellValue)<=0 ){
+      alert("Please enter number!") ; 
+      return false;
+    } 
+ 
+    return true;
+  }
+
 
   render() { 
+
+    //  this let me click on row to edit
+    const cellEditProp = {
+      mode: 'click',
+      blurToSave: true,
+      beforeSaveCell: this.onBeforeSaveCell, // a hook for before saving cell
+      afterSaveCell: this.onAfterSaveCell  // a hook for after saving cell
+
+    };
 
     var tblregiontitle = '';
     if(this.state.selectedcontinent && this.state.selectedcontinent.length>0 ){

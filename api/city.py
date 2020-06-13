@@ -71,6 +71,32 @@ def removecity(reqdata):
 
 
 def updatecity(reqdata):
+    if reqdata.get("city_id") != '' and int(reqdata.get("city_id")) >0 :
+        conn = None
+        try:
+            params = configdb()
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor(cursor_factory=RealDictCursor)
+            sql = "update city set \"" + reqdata.get("updateon") + "\"=%s where \"id\"=%s"
+            cur.execute(sql , ( reqdata.get("updatevalue"), int(reqdata.get("city_id")),))
+            conn.commit()
+
+            print(sql)
+            print("Record updated successfully ")
+
+            cur.close()
+            return {"data": "success update", "params": reqdata, "city_id": reqdata.get("city_id")}
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+    else:
+        return {"data": "can not remove", "params": reqdata, "city_id": reqdata.get("city_id")}
+
+
     return {"data": "success update", "params": reqdata , "city_id" : reqdata.get("city_id")}
 
 

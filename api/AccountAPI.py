@@ -70,7 +70,11 @@ def remove_city():
 #   Should be POST only
 @account_api.route("/city/update", methods=["POST", "GET"])
 def update_city():
-    data = request.args
-    #return json.dumps(request.args, cls=CustomJsonEncoder)
-    return updatecity(request.args)
+    #   for testing in dev purpose
+    if request.method == "GET":
+        return updatecity(request.args)
+    elif request.method == "POST":
+        return updatecity(request.json)
+
+    return json.dumps({}, cls=CustomJsonEncoder)
 
