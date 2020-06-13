@@ -26,6 +26,7 @@ Setup:
 - setup psycopg2, create connection string (can be found at api/configdb.py) and test your connection
 
 Backend: python + postgreSQL + Flask framework
+
 Frontend: react, react-bootstrap, react-bootstrap-table, font awesome, ...
 
 Sitemap: 
